@@ -1,52 +1,24 @@
-document.addEventListener('DOMContentLoaded', function() {
-  // DOM Elements
-  const navLinks = document.querySelectorAll('.nav-menu a');
-  const loadingIndicator = document.querySelector('.loading');
-  
-  // Navigation handling
-  navLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const section = this.dataset.section;
-          handleNavigation(section);
-      });
-  });
+const express = require('express');
+require('dotenv').config();
+const path = require('path');
 
-  // Handle navigation with loading state
-  function handleNavigation(section) {
-      showLoading();
-      
-      // Simulate API call or page load
-      setTimeout(() => {
-          hideLoading();
-          updateContent(section);
-      }, 1000);
-  }
+const app = express();
 
-  // Loading state functions
-  function showLoading() {
-      loadingIndicator.style.display = 'block';
-  }
+// Middleware for serving static files
+app.use(express.static(path.join(__dirname, '../public')));
 
-  function hideLoading() {
-      loadingIndicator.style.display = 'none';
-  }
+// Example API endpoint
+app.get('/api/data', (req, res) => {
+    res.json({ message: 'Welcome to Project E API!' });
+});
 
-  // Update content based on section
-  function updateContent(section) {
-      console.log(`Navigating to ${section}`);
-      // Here you would typically update the page content
-      // based on the selected section
-  }
+// Serve the main HTML file
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
-  // Responsive handling
-  let resizeTimer;
-  window.addEventListener('resize', function() {
-      // Debounce resize events
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-          // Handle any responsive adjustments here
-          console.log('Window resized - layout adjusted');
-      }, 250);
-  });
+// Start the server
+const PORT = process.env.PORT || 3005;
+app.listen(PORT, () => {
+    console.log(`Project E is running on http://localhost:${PORT}`);
 });
