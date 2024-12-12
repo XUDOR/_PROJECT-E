@@ -13,10 +13,6 @@ app.use(cors());
 // Middleware for parsing JSON
 app.use(express.json());
 
-// Middleware for parsing multipart/form-data (for file uploads)
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' }); // Temporary storage for parsed files
-
 // Middleware for serving static files
 app.use(express.static(path.join(__dirname, '../public')));
 
