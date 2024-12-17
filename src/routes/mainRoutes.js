@@ -6,6 +6,23 @@ const axios = require('axios');
 const { PROJECT_F_URL, PROJECT_B_URL } = require('../../config/const');
 const router = express.Router();
 
+
+// ------------------- API STATUS ROUTE ------------------- //
+router.get('/api/status', (req, res) => {
+    res.json({
+        status: 'active',
+        version: '1.0',
+        message: 'Project E is running'
+    });
+});
+
+// ---------------- HEALTHCHECK ---------------- //
+
+router.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'Project E is up and running' });
+});
+
+
 // ------------------- PARSER OPERATIONS ------------------- //
 
 // Route to handle document parsing and notify other services
