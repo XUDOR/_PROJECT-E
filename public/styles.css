@@ -19,7 +19,7 @@ header {
   background-color: #7E8D9B;
   color: #4A4882;
   padding: 1rem;
-  
+
   text-align: left;
 }
 
@@ -60,33 +60,35 @@ main {
 .grid-container {
   display: grid;
   gap: 2rem;
-  grid-template-columns: 1fr;  /* Mobile first - single column */
+  grid-template-columns: 1fr;
+  /* Mobile first - single column */
   margin-bottom: 2rem;
 }
 
 /* Tablet breakpoint */
 @media (min-width: 768px) {
   .grid-container {
-      grid-template-columns: repeat(2, 1fr);  /* 2 columns for tablets */
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns for tablets */
   }
 }
 
 /* Desktop breakpoint */
 @media (min-width: 1024px) {
   .grid-container {
-      grid-template-columns: repeat(3, 1fr);  /* 3 columns for desktop */
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 columns for desktop */
   }
+}
+
+.titleTag {
+  font-weight: lighter;
 }
 
 .grid-item {
   background-color: #444340;
   padding: 2rem;
   min-height: 200px;
-  transition: transform 0.3s ease;
-}
-
-.grid-item:hover {
-  transform: translateY(-5px);
 }
 
 /* Footer styles */
