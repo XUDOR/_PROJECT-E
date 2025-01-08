@@ -1,122 +1,142 @@
-// mainRoutes.js
-
-
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
-const { PROJECT_F_URL, PROJECT_B_URL } = require('../../config/const');
+
 const router = express.Router();
 
+// Import constants
+const { PROJECT_F_URL, PROJECT_B_URL } = require('../../config/const');
 
-// ------------------- API STATUS ROUTE ------------------- //
+// ------------------- API STATUS ROUTES ------------------- //
+
+/**
+ * Status route to check service availability
+ */
 router.get('/api/status', (req, res) => {
     res.json({
         status: 'active',
         version: '1.0',
-        message: 'Project E is running'
+        message: 'Project E is running',
     });
 });
 
-// ---------------- HEALTHCHECK ---------------- //
-
+/**
+ * Healthcheck route
+ */
 router.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'Project E is up and running' });
+    res.status(200).json({
+        status: 'healthy',
+        message: 'Project E is operational',
+        timestamp: new Date().toISOString(),
+    });
 });
-
 
 // ------------------- PARSER OPERATIONS ------------------- //
 
-// Route to handle document parsing and notify other services
+/**
+ * Parse a document and notify other services
+ */
 router.post('/api/parse', async (req, res) => {
     try {
-        const documentData = req.body;
-        console.log('Received document for parsing:', documentData);
+        const { id, filePath, metadata } = req.body;
 
-        // Parse document to JSON-R format
+        if (!filePath || !metadata) {
+            return res.status(400).json({ error: 'File path and metadata are required' });
+        }
+
+        console.log('Received document for parsing:', { id, metadata });
+
+        // Example parsing logic to JSON-R format
         const jsonRData = {
-            section1: {
-                ml_ready: true,
-                timestamp: new Date().toISOString(),
-                // Add other machine-ready data
-            },
-            section2: {
-                // Add categorization and identifiers
-            },
-            // Add other sections
+            documentId: id,
+            parsedAt: new Date().toISOString(),
+            sections: [
+                { title: 'Section 1', ml_ready: true, data: metadata.section1 || {} },
+                { title: 'Section 2', categories: metadata.categories || [] },
+            ],
+            originalFilePath: filePath,
         };
 
-        // Store parsed data in Project B (Database)
+        // Store parsed data in Project B
         const dbResponse = await axios.post(`${PROJECT_B_URL}/store`, jsonRData);
-        console.log('Stored parsed data:', dbResponse.data);
+        console.log('Stored parsed data in Project B:', dbResponse.data);
 
         // Notify Communication Hub (Project F)
         await axios.post(`${PROJECT_F_URL}/api/notifications`, {
-            message: `Document parsed successfully: ${documentData.id}`
-        });
-
-        // Log success to communication hub
-        await axios.post(`${PROJECT_F_URL}/api/communication`, {
-            type: 'PARSE_SUCCESS',
-            data: {
-                documentId: documentData.id,
-                timestamp: new Date().toISOString()
-            }
+            message: `Document parsed successfully: ${id}`,
+            details: { documentId: id, timestamp: new Date().toISOString() },
         });
 
         res.status(200).json({
             message: 'Document parsed successfully',
-            data: jsonRData
+            parsedData: jsonRData,
         });
-
     } catch (error) {
         console.error('Error in parse operation:', error.message);
 
-        // Notify hub of error
+        // Notify Communication Hub of failure
         await axios.post(`${PROJECT_F_URL}/api/notifications`, {
-            message: `Parse error: ${error.message}`
+            message: `Parse error for document: ${req.body?.id || 'unknown'}`,
+            error: error.message,
         });
 
         res.status(500).json({ error: 'Failed to parse document.' });
     }
 });
 
-// ------------------- OPTIMIZATION ROUTES ------------------- //
-
-// Route to optimize parsed documents for specific purposes (ATS, ML, etc)
+/**
+ * Optimize parsed document for specific use cases
+ */
 router.post('/api/optimize', async (req, res) => {
     try {
         const { documentId, optimizationType } = req.body;
+
+        if (!documentId || !optimizationType) {
+            return res.status(400).json({ error: 'Document ID and optimization type are required' });
+        }
+
         console.log(`Optimizing document ${documentId} for ${optimizationType}`);
 
-        // Optimization logic here
+        // Example optimization logic
         const optimizedData = {
-            // Add optimization results
+            documentId,
+            optimizationType,
+            optimizedAt: new Date().toISOString(),
+            data: {
+                // Add results of optimization
+            },
         };
 
-        // Notify hub of optimization completion
+        // Notify Communication Hub of optimization completion
         await axios.post(`${PROJECT_F_URL}/api/notifications`, {
-            message: `Document ${documentId} optimized for ${optimizationType}`
+            message: `Document ${documentId} optimized for ${optimizationType}`,
+            details: optimizedData,
         });
 
         res.status(200).json({
             message: 'Document optimized successfully',
-            data: optimizedData
+            data: optimizedData,
         });
-
     } catch (error) {
-        console.error('Optimization error:', error.message);
-        res.status(500).json({ error: 'Optimization failed.' });
+        console.error('Error in optimization operation:', error.message);
+
+        res.status(500).json({ error: 'Failed to optimize document.' });
     }
 });
 
 // ------------------- STATUS ROUTES ------------------- //
 
-// Route to check parser status and recent operations
+/**
+ * Check parser status and recent operations
+ */
 router.get('/api/status', (req, res) => {
     res.json({
         status: 'active',
         version: '1.0',
-        lastOperation: new Date().toISOString()
+        lastOperation: new Date().toISOString(),
     });
 });
+
+// ------------------- EXPORT ROUTER ------------------- //
 
 module.exports = router;
