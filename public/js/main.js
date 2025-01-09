@@ -1,52 +1,100 @@
-document.addEventListener('DOMContentLoaded', function() {
-  // DOM Elements
-  const navLinks = document.querySelectorAll('.nav-menu a');
-  const loadingIndicator = document.querySelector('.loading');
-  
-  // Navigation handling
-  navLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const section = this.dataset.section;
-          handleNavigation(section);
-      });
-  });
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
+    const tableBody = document.querySelector('#parsed-data-table tbody');
+    const loadingIndicator = document.querySelector('.loading');
 
-  // Handle navigation with loading state
-  function handleNavigation(section) {
-      showLoading();
-      
-      // Simulate API call or page load
-      setTimeout(() => {
-          hideLoading();
-          updateContent(section);
-      }, 1000);
-  }
+    // Initialize the app
+    function init() {
+        fetchParsedData();
+        setupNavLinks();
+        handleWindowResize();
+    }
 
-  // Loading state functions
-  function showLoading() {
-      loadingIndicator.style.display = 'block';
-  }
+    // Fetch and populate parsed data
+    async function fetchParsedData() {
+        showLoading();
+        try {
+            const response = await fetch('/api/display');
+            const data = await response.json();
 
-  function hideLoading() {
-      loadingIndicator.style.display = 'none';
-  }
+            populateTable(data);
+        } catch (error) {
+            console.error('Error fetching parsed data:', error);
+        } finally {
+            hideLoading();
+        }
+    }
 
-  // Update content based on section
-  function updateContent(section) {
-      console.log(`Navigating to ${section}`);
-      // Here you would typically update the page content
-      // based on the selected section
-  }
+    // Populate table with data
+    function populateTable(data) {
+        tableBody.innerHTML = ''; // Clear any existing rows
 
-  // Responsive handling
-  let resizeTimer;
-  window.addEventListener('resize', function() {
-      // Debounce resize events
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-          // Handle any responsive adjustments here
-          console.log('Window resized - layout adjusted');
-      }, 250);
-  });
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.fileName}</td>
+                <td>${new Date(item.scannedAt).toLocaleString()}</td>
+                <td>
+                    <ul>
+                        <li><strong>IP:</strong> ${item.metadata.IP || 'N/A'}</li>
+                        <li><strong>Section 1:</strong> ${item.metadata.section1 || 'N/A'}</li>
+                        <li><strong>Categories:</strong> ${item.metadata.categories?.join(', ') || 'N/A'}</li>
+                    </ul>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Setup navigation links
+    function setupNavLinks() {
+        const navLinks = document.querySelectorAll('.nav-menu a');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const section = this.dataset.section;
+                handleNavigation(section);
+            });
+        });
+    }
+
+    // Handle navigation with loading state
+    function handleNavigation(section) {
+        showLoading();
+        setTimeout(() => {
+            hideLoading();
+            updateContent(section);
+        }, 1000);
+    }
+
+    // Update content based on section
+    function updateContent(section) {
+        console.log(`Navigating to ${section}`);
+        // Add logic to dynamically update the page content if needed
+    }
+
+    // Handle window resize with debouncing
+    function handleWindowResize() {
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                console.log('Window resized - layout adjusted');
+            }, 250);
+        });
+    }
+
+    // Loading state functions
+    function showLoading() {
+        loadingIndicator.style.display = 'block';
+    }
+
+    function hideLoading() {
+        loadingIndicator.style.display = 'none';
+    }
+
+    // Initialize app
+    init();
 });

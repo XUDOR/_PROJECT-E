@@ -124,6 +124,31 @@ router.post('/api/optimize', async (req, res) => {
     }
 });
 
+// ------------ New route to fetch parsed data ------------//
+
+router.get('/api/display', async (req, res) => {
+    try {
+        // Mocked data for now, replace with actual data retrieval
+        const parsedData = [
+            {
+                id: 'doc123',
+                fileName: 'resume1.pdf',
+                scannedAt: '2025-01-08T10:30:00Z',
+                metadata: {
+                    IP: '192.168.0.1',
+                    section1: 'Work Experience',
+                    categories: ['Engineering', 'AI'],
+                },
+            },
+        ];
+
+        res.status(200).json(parsedData);
+    } catch (error) {
+        console.error('Error fetching parsed data:', error.message);
+        res.status(500).json({ error: 'Failed to fetch data.' });
+    }
+});
+
 // ------------------- STATUS ROUTES ------------------- //
 
 /**

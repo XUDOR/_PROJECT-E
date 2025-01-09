@@ -76,10 +76,12 @@ main {
 /* Desktop breakpoint */
 @media (min-width: 1024px) {
   .grid-container {
-    grid-template-columns: repeat(3, 1fr);
-    /* 3 columns for desktop */
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: 45% 27.5% 27.5%; /* First div wider */
   }
 }
+
 
 .titleTag {
   font-weight: lighter;
@@ -89,6 +91,26 @@ main {
   background-color: #444340;
   padding: 2rem;
   min-height: 200px;
+}
+
+/* TABLE styles  ==== */
+
+#parsed-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  color: #FFFFFA;
+  background-color: #444340;
+}
+
+#parsed-data-table th, #parsed-data-table td {
+  border: 1px solid #7E8D9B;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+#parsed-data-table th {
+  background-color: #637482;
 }
 
 /* Footer styles */
